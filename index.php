@@ -75,7 +75,7 @@ add_action( 'admin_init', 'tp_register_settings' );
 
 // Load the plugin update checker library
 // to check for updates from a GitHub repository.
-require_once plugin_dir_path(__FILE__) . 'vendor/plugin-update-checker/plugin-update-checker.php';
+require_once plugin_dir_path(__FILE__) . 'plugin-update-checker/plugin-update-checker.php';
 
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
