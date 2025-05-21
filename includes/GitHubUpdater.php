@@ -123,19 +123,19 @@ class GitHubUpdater {
 	public function after_install($response, $hook_extra, $result) {
 		global $wp_filesystem;
 
-		$plugin_slug = dirname($this->config->plugin_slug);
-		$proper_destination = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$plugin_folder_name = dirname($this->config->plugin_slug);
+		$correct_destination = WP_PLUGIN_DIR . '/' . $plugin_folder_name;
 
-		// Delete if the correct folder already exists
-		if ($wp_filesystem->exists($proper_destination)) {
-			$wp_filesystem->delete($proper_destination, true);
+		// Remove old plugin folder if exists
+		if ($wp_filesystem->exists($correct_destination)) {
+			$wp_filesystem->delete($correct_destination, true);
 		}
 
-		// Move GitHub folder to expected name
-		$wp_filesystem->move($result['destination'], $proper_destination);
+		// Move the downloaded folder to the correct folder name
+		$wp_filesystem->move($result['destination'], $correct_destination);
 
-		// Update install result
-		$result['destination'] = $proper_destination;
+		// Update result destination
+		$result['destination'] = $correct_destination;
 
 		return $result;
 	}
