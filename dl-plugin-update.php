@@ -21,8 +21,10 @@ defined('ABSPATH') || exit;
 // Autoload or manually include the updater
 require_once plugin_dir_path(__FILE__) . 'includes/GitHubUpdater.php';
 
+// Check if the class exists before creating an instance
 use DL\GitHubUpdater;
 
+// Initialize the updater
 new GitHubUpdater([
 	'plugin_file'   => __FILE__,
 	'github_user'   => 'designs-labz', // GitHub username
