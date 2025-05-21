@@ -83,5 +83,5 @@ add_action('admin_notices', function () {
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-updater.php';
 
-add_filter('pre_set_site_transient_update_plugins', ['DL_Plugin_Updater', 'check_for_update']);
-add_filter('plugins_api', ['DL_Plugin_Updater', 'plugin_info'], 10, 3);
+add_filter('pre_set_site_transient_update_plugins', ['DL_Updater', 'check_for_update']);
+add_filter('plugins_api', ['DL_Updater', 'plugin_info'], 10, 3);

@@ -1,7 +1,7 @@
 <?php
 class DL_Updater {
 	const GITHUB_REPO = 'designs-labz/dl-plugin-update';
-	const PLUGIN_FILE = 'dl-plugin-update/dl-plugin-update.php';
+	const PLUGIN_FILE = 'dl-plugin-update/index.php';
 
 	public static function get_repo_release() {
 		$url = 'https://api.github.com/repos/' . self::GITHUB_REPO . '/releases/latest';
@@ -25,7 +25,12 @@ class DL_Updater {
 		$release = self::get_repo_release();
 		if (!$release || !isset($release->tag_name)) return $transient;
 
+		if (!isset($transient->checked[self::PLUGIN_FILE])) {
+			return $transient;
+		}
+
 		$current_version = $transient->checked[self::PLUGIN_FILE];
+
 		$latest_version = ltrim($release->tag_name, 'v');
 
 		if (version_compare($current_version, $latest_version, '<')) {
@@ -68,8 +73,18 @@ class DL_Updater {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . self::PLUGIN_FILE);
-		$current_version = $plugin_data['Version'];
+		$plugin_file_path = WP_PLUGIN_DIR . '/' . self::PLUGIN_FILE;
+
+		if (!file_exists($plugin_file_path)) {
+			return '❌ Plugin main file not found.';
+		}
+
+		$plugin_data = get_plugin_data($plugin_file_path);
+		$current_version = $plugin_data['Version'] ?? null;
+
+		if (!$current_version) {
+			return '❌ Failed to get current plugin version.';
+		}
 
 		$release = self::get_repo_release();
 		if (!$release || !isset($release->tag_name)) {
@@ -84,4 +99,5 @@ class DL_Updater {
 			return "✅ Plugin is up to date: {$current_version}";
 		}
 	}
+
 }
