@@ -113,19 +113,29 @@ class GitHubUpdater {
 	}
 
 	/**
-	 * Move the plugin folder after installation.
+	 * After install hook to rename the plugin folder.
 	 *
-	 * @param bool  $response Response status.
-	 * @param array $hook_extra Hook extra data.
-	 * @param array $result Install result data.
-	 * @return array Modified install result.
+	 * @param array $response The response from the installer.
+	 * @param array $hook_extra Extra data from the installer.
+	 * @param array $result The result of the installation.
+	 * @return array Modified result.
 	 */
 	public function after_install($response, $hook_extra, $result) {
 		global $wp_filesystem;
 
-		$plugin_folder = WP_PLUGIN_DIR . '/' . dirname($this->config->plugin_slug);
-		$wp_filesystem->move($result['destination'], $plugin_folder);
-		$result['destination'] = $plugin_folder;
+		$plugin_slug = dirname($this->config->plugin_slug);
+		$proper_destination = WP_PLUGIN_DIR . '/' . $plugin_slug;
+
+		// Delete if the correct folder already exists
+		if ($wp_filesystem->exists($proper_destination)) {
+			$wp_filesystem->delete($proper_destination, true);
+		}
+
+		// Move GitHub folder to expected name
+		$wp_filesystem->move($result['destination'], $proper_destination);
+
+		// Update install result
+		$result['destination'] = $proper_destination;
 
 		return $result;
 	}
