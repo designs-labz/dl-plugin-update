@@ -40,12 +40,13 @@ class GitHubUpdater {
 		]);
 
 		if (is_wp_error($response)) {
-			error_log('GitHub Updater: GitHub API error - ' . $response->get_error_message());
+			error_log('GitHub API error: ' . $response->get_error_message());
 			return false;
 		}
 
 		$data = json_decode(wp_remote_retrieve_body($response));
-		return $data ?? false;
+		error_log('GitHub API response: ' . print_r($data, true)); // ADD THIS LINE
+		return $data ?: false;
 	}
 
 	/**
