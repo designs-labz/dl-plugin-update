@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:           DL Plugin Update Checker
- * Plugin URI:            https://github.com/team-designslabz/dl-plugin-update
+ * Plugin URI:            https://github.com/designs-labz/dl-plugin-update/
  * Description:           DesignsLabz plugin update checker.
  * Version:               1.0.0
  * Requires PHP:          7.4
@@ -12,7 +12,7 @@
  * License:               GPL-3.0-or-later
  * License URI:           https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:           designslabz
- * GitHub Plugin URI:     https://github.com/team-designslabz/dl-plugin-update
+ * GitHub Plugin URI:     https://github.com/designs-labz/dl-plugin-update/
  * GitHub Branch:         main
  */
 
@@ -81,7 +81,7 @@ require_once plugin_dir_path(__FILE__) . 'vendor/plugin-update-checker/plugin-up
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $updateChecker = PucFactory::buildUpdateChecker(
-    'https://github.com/team-designslabz/dl-plugin-update/',
+    'https://github.com/designs-labz/dl-plugin-update/',
     __FILE__,
     'dl-plugin-update'
 );
