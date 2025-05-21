@@ -1,12 +1,12 @@
 === DL Plugin Update Checker ===
-Contributors:      designs-labz  
-Tags:              plugin update, github update, updater, wordpress github updater  
+Contributors:      designs-labz
+Tags:              plugin update, github update, updater, wordpress github updater
 Requires at least: 6.1  
-Tested up to:      6.8.2  
+Tested up to:      6.8.2
 Requires PHP:      7.4  
-Stable tag:        1.0.0  
-License:           GPLv3 or later  
-License URI:       https://www.gnu.org/licenses/gpl-3.0.html  
+Stable tag:        1.0.4
+License:           GPLv3 or later
+License URI:       https://www.gnu.org/licenses/gpl-3.0.html
 
 Automatically check for updates from GitHub repositories and update your plugin directly from GitHub releases.
 
