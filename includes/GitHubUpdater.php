@@ -6,13 +6,9 @@
  *
  * @package DL
  */
+
 namespace DL;
 
-/**
- * Class GitHubUpdater
- *
- * @package DL
- */
 class GitHubUpdater {
 	/**
 	 * @var object Configuration arguments.
@@ -38,42 +34,59 @@ class GitHubUpdater {
 	 */
 	public function get_repo_release_data() {
 		$url = "https://api.github.com/repos/{$this->config->github_user}/{$this->config->github_repo}/releases/latest";
+
 		$response = wp_remote_get($url, [
 			'headers' => ['User-Agent' => 'WordPress/' . get_bloginfo('version')],
 		]);
-		if (is_wp_error($response)) return false;
+
+		if (is_wp_error($response)) {
+			error_log('GitHub Updater: GitHub API error - ' . $response->get_error_message());
+			return false;
+		}
+
 		$data = json_decode(wp_remote_retrieve_body($response));
-		return $data;
+		return $data ?? false;
 	}
 
 	/**
-	 * Check for updates.
+	 * Check for updates from GitHub.
 	 *
-	 * @param object $transient The transient object.
-	 * @return object The updated transient object.
+	 * @param object $transient The transient data.
+	 * @return object Modified transient data with update info.
 	 */
 	public function check_for_update($transient) {
 		if (empty($transient->checked)) return $transient;
-		$release = $this->get_repo_release_data();
-		if (!$release || version_compare($release->tag_name, $this->config->version, '<=')) return $transient;
 
-		$plugin_data = [
-			'slug' => dirname($this->config->plugin_slug),
-			'new_version' => $release->tag_name,
-			'url' => $release->html_url,
-			'package' => $release->zipball_url,
+		$release = $this->get_repo_release_data();
+		if (!$release || empty($release->tag_name)) return $transient;
+
+		$latest_version  = ltrim($release->tag_name, 'v');
+		$current_version = ltrim($this->config->version, 'v');
+
+		if (version_compare($latest_version, $current_version, '<=')) {
+			return $transient;
+		}
+
+		$plugin_slug = $this->config->plugin_slug;
+
+		$transient->response[$plugin_slug] = (object) [
+			'slug'        => dirname($plugin_slug),
+			'plugin'      => $plugin_slug,
+			'new_version' => $latest_version,
+			'url'         => $release->html_url,
+			'package'     => $release->zipball_url,
 		];
-		$transient->response[$this->config->plugin_slug] = (object)$plugin_data;
+
 		return $transient;
 	}
 
 	/**
-	 * Provide plugin information.
+	 * Provide plugin info for WordPress "View details" modal.
 	 *
-	 * @param bool   $false The default value.
-	 * @param string $action The action name.
-	 * @param object $args The arguments.
-	 * @return object|false Plugin information or false on error.
+	 * @param bool   $false Default false.
+	 * @param string $action The current action.
+	 * @param object $args The plugin API args.
+	 * @return object|false Plugin info or false.
 	 */
 	public function plugin_info($false, $action, $args) {
 		if ($action !== 'plugin_information' || $args->slug !== dirname($this->config->plugin_slug)) {
@@ -84,31 +97,35 @@ class GitHubUpdater {
 		if (!$release) return false;
 
 		return (object)[
-			'name' => $this->config->github_repo,
-			'slug' => dirname($this->config->plugin_slug),
-			'version' => $release->tag_name,
-			'author' => '<a href="https://github.com/' . $this->config->github_user . '">' . $this->config->github_user . '</a>',
-			'homepage' => $release->html_url,
-			'download_link' => $release->zipball_url,
-			'sections' => [
-				'description' => $release->body,
+			'name'           => $this->config->github_repo,
+			'slug'           => dirname($this->config->plugin_slug),
+			'version'        => ltrim($release->tag_name, 'v'),
+			'author'         => '<a href="https://github.com/' . esc_attr($this->config->github_user) . '">' . esc_html($this->config->github_user) . '</a>',
+			'homepage'       => $release->html_url,
+			'download_link'  => $release->zipball_url,
+			'requires'       => '5.0',
+			'tested'         => '6.5',
+			'sections'       => [
+				'description' => $release->body ?: 'No description provided.',
 			],
 		];
 	}
 
 	/**
-	 * After install hook.
+	 * Move the plugin folder after installation.
 	 *
-	 * @param array $response The response data.
-	 * @param array $hook_extra Extra data.
-	 * @param array $result The result data.
-	 * @return array The modified result data.
+	 * @param bool  $response Response status.
+	 * @param array $hook_extra Hook extra data.
+	 * @param array $result Install result data.
+	 * @return array Modified install result.
 	 */
 	public function after_install($response, $hook_extra, $result) {
 		global $wp_filesystem;
+
 		$plugin_folder = WP_PLUGIN_DIR . '/' . dirname($this->config->plugin_slug);
 		$wp_filesystem->move($result['destination'], $plugin_folder);
 		$result['destination'] = $plugin_folder;
+
 		return $result;
 	}
 }

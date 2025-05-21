@@ -3,7 +3,7 @@
  * Plugin Name:           DL Plugin Update Checker
  * Plugin URI:            https://github.com/designs-labz/dl-plugin-update/
  * Description:           DesignsLabz plugin update checker.
- * Version:               1.0.8
+ * Version:               1.0.10
  * Requires PHP:          7.4
  * Requires at least:     6.1
  * Tested up to:          6.8.2
@@ -30,5 +30,5 @@ new GitHubUpdater([
 	'github_user'   => 'designs-labz', // GitHub username
 	'github_repo'   => 'dl-plugin-update', // Repo name
 	'plugin_slug'   => plugin_basename(__FILE__),
-	'version'       => '1.0.8',
+	'version'       => '1.0.10',
 ]);
