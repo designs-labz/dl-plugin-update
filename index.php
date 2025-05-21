@@ -73,6 +73,14 @@ function tp_register_settings() {
 }
 add_action( 'admin_init', 'tp_register_settings' );
 
+add_action('admin_notices', function () {
+	if (!current_user_can('update_plugins')) return;
+
+	$status = DL_Updater::manual_check_version();
+	echo '<div class="notice notice-info is-dismissible"><p>' . esc_html($status) . '</p></div>';
+});
+
+
 require_once plugin_dir_path(__FILE__) . 'includes/class-updater.php';
 
 add_filter('pre_set_site_transient_update_plugins', ['DL_Plugin_Updater', 'check_for_update']);

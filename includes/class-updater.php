@@ -1,5 +1,4 @@
 <?php
-
 class DL_Updater {
 	const GITHUB_REPO = 'designs-labz/dl-plugin-update';
 	const PLUGIN_FILE = 'dl-plugin-update/dl-plugin-update.php';
@@ -31,11 +30,11 @@ class DL_Updater {
 
 		if (version_compare($current_version, $latest_version, '<')) {
 			$transient->response[self::PLUGIN_FILE] = (object)[
-				'slug' => dirname(self::PLUGIN_FILE),
-				'plugin' => self::PLUGIN_FILE,
+				'slug'        => dirname(self::PLUGIN_FILE),
+				'plugin'      => self::PLUGIN_FILE,
 				'new_version' => $latest_version,
-				'url' => $release->html_url,
-				'package' => $release->zipball_url,
+				'url'         => $release->html_url,
+				'package'     => $release->zipball_url,
 			];
 		}
 
@@ -51,15 +50,38 @@ class DL_Updater {
 		if (!$release || !isset($release->tag_name)) return $false;
 
 		return (object)[
-			'name' => 'DL Plugin Update',
-			'slug' => dirname(self::PLUGIN_FILE),
-			'version' => ltrim($release->tag_name, 'v'),
-			'author' => '<a href="https://designslabz.com">DesignsLabz</a>',
-			'homepage' => $release->html_url,
+			'name'          => 'DL Plugin Update',
+			'slug'          => dirname(self::PLUGIN_FILE),
+			'version'       => ltrim($release->tag_name, 'v'),
+			'author'        => '<a href="https://designslabz.com">DesignsLabz</a>',
+			'homepage'      => $release->html_url,
 			'download_link' => $release->zipball_url,
-			'sections' => [
+			'sections'      => [
 				'description' => $release->body ?: 'GitHub-based plugin update',
 			],
 		];
+	}
+
+	// ✅ Manual version check (can be used for admin notices, etc.)
+	public static function manual_check_version() {
+		if ( ! function_exists('get_plugin_data') ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . self::PLUGIN_FILE);
+		$current_version = $plugin_data['Version'];
+
+		$release = self::get_repo_release();
+		if (!$release || !isset($release->tag_name)) {
+			return '❌ Failed to retrieve GitHub release info.';
+		}
+
+		$latest_version = ltrim($release->tag_name, 'v');
+
+		if (version_compare($current_version, $latest_version, '<')) {
+			return "🔔 Update available: {$current_version} → {$latest_version}";
+		} else {
+			return "✅ Plugin is up to date: {$current_version}";
+		}
 	}
 }
